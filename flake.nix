@@ -17,6 +17,38 @@
       #overlays = [(import rust-overlay)];
       #pkgs = import nixpkgs {inherit system overlays;};
       pkgs = import nixpkgs {inherit system;};
+      python312Env = pkgs.python312.withPackages (ps:
+        with ps; [
+          accelerate
+          datasets
+          debugpy
+          einops
+          evaluate
+          future
+          ipykernel
+          ipython
+          nltk
+          numpy
+          openai
+          optimum
+          pandas
+          pip
+          portalocker
+          pyarrow
+          python-dotenv
+          pytorch
+          rouge-score
+          sacrebleu
+          scipy
+          sentence-transformers
+          setuptools
+          sympy
+          tenacity
+          tokenizers
+          torch
+          pkgs.mpi
+          transformers
+        ]);
     in rec {
       # nix develop .#rust
       devShells.rust = pkgs.mkShell {
@@ -38,18 +70,17 @@
             clippy
           ]
           ++ pkgs.lib.optionals pkgs.stdenv.isDarwin (with pkgs; [
-            darwin.apple_sdk.frameworks.Security
             darwin.cctools
           ]);
         shellHook = ''
           echo "You're using the Rust default environment"
         '';
       };
-      # nix develop .#ts18
-      devShells.ts18 = pkgs.mkShell {
+      # nix develop .#ts24
+      devShells.ts24 = pkgs.mkShell {
         buildInputs = with pkgs;
           [
-            nodejs-18_x
+            nodejs_24
             autoconf
             mozjpeg
             libtool
@@ -59,22 +90,41 @@
             optipng
             pkg-config
             gcc
-            dpkg
-            (yarn.override {nodejs = nodejs-18_x;})
+            pnpm
+            (yarn.override {nodejs = nodejs_24;})
             nodePackages.typescript
             nodePackages.typescript-language-server
             nodePackages.diagnostic-languageserver
             nodePackages.eslint_d
           ]
           ++ pkgs.lib.optionals pkgs.stdenv.isDarwin (with pkgs; [
-            darwin.apple_sdk.frameworks.Security
             darwin.cctools
           ]);
         shellHook = ''
-          echo "You're using the TypeScript on Node 18 default environment"
+          echo "You're using the TypeScript on Node 24 default environment"
         '';
       };
       # nix develop .#ts
-      devShells.ts = devShells.ts18;
+      devShells.ts = devShells.ts24;
+
+      devShells.python312 = pkgs.mkShell {
+        buildInputs = with pkgs; [
+          libffi
+          python312Env
+        ];
+
+        shellHook = ''
+          export PIP_PREFIX=$(pwd)/_build/pip_packages #Dir where built packages are stored
+          export PYTHONPATH="$PIP_PREFIX/${python312Env.sitePackages}:$PYTHONPATH"
+          echo "home = $PIP_PREFIX/${python312Env.sitePackages}" > pyvenv.cfg
+          echo "include-system-site-packages = false" >> pyvenv.cfg
+          export PATH="$PIP_PREFIX/bin:$PATH"
+          export JUPYTER_CONFIG_DIR="$PIP_PREFIX/jupyter"
+          export PYTHONPATH="$PYTHONPATH:$(pwd)"
+          unset SOURCE_DATE_EPOCH
+          echo "You're using the Python 3.12 default environment"
+        '';
+      };
+      devShells.python = devShells.python312;
     });
 }
