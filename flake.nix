@@ -1,6 +1,6 @@
 {
   description = "pw quick dev environments"; # for when i'm too lazy to setup a custom flake.nix
-  nixConfig.bash-prompt = ''\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \[\033[00m\](\[\033[01;31m\]\[pwdev\]\[\033[00m\])\$ '';
+  #nixConfig.bash-prompt = ''\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \[\033[00m\](\[\033[01;31m\]\[pwdev\]\[\033[00m\])\$ '';
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     rust-overlay.url = "github:oxalica/rust-overlay";
@@ -58,6 +58,7 @@
             pkg-config
             cargo-watch
             cargo-bundle
+            cargo-tauri
             #rust-bin.stable.latest.default
             curl
             libiconv
@@ -74,6 +75,7 @@
           ]);
         shellHook = ''
           echo "You're using the Rust default environment"
+          export PS1="\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \[\033[00m\](\[\033[01;31m\]\[pwdev-rust\]\[\033[00m\])\$ "
         '';
       };
       # nix develop .#ts24
@@ -102,6 +104,7 @@
           ]);
         shellHook = ''
           echo "You're using the TypeScript on Node 24 default environment"
+          export PS1="\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \[\033[00m\](\[\033[01;31m\]\[pwdev-ts\]\[\033[00m\])\$ "
         '';
       };
       # nix develop .#ts
@@ -122,9 +125,19 @@
           export JUPYTER_CONFIG_DIR="$PIP_PREFIX/jupyter"
           export PYTHONPATH="$PYTHONPATH:$(pwd)"
           unset SOURCE_DATE_EPOCH
+          export PS1="\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \[\033[00m\](\[\033[01;31m\]\[pwdev-python\]\[\033[00m\])\$ "
           echo "You're using the Python 3.12 default environment"
         '';
       };
       devShells.python = devShells.python312;
+      devShells.all =
+        devShells.ts
+        // devShells.rust
+        // devShells.python
+        // pkgs.mkShell {
+          shellHook = ''
+            export PS1="\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \[\033[00m\](\[\033[01;31m\]\[pwdev-all\]\[\033[00m\])\$ "
+          '';
+        };
     });
 }
