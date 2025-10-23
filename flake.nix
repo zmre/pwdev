@@ -130,14 +130,15 @@
         '';
       };
       devShells.python = devShells.python312;
-      devShells.all =
-        devShells.ts
-        // devShells.rust
-        // devShells.python
-        // pkgs.mkShell {
-          shellHook = ''
+      devShells.all = pkgs.mkShell {
+        buildInputs = devShells.ts.buildInputs ++ devShells.rust.buildInputs ++ devShells.python.buildInputs;
+        shellHook =
+          devShells.ts.shellHook
+          + devShells.rust.shellHook
+          + devShells.python.shellHook
+          + ''
             export PS1="\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \[\033[00m\](\[\033[01;31m\]\[pwdev-all\]\[\033[00m\])\$ "
           '';
-        };
+      };
     });
 }
