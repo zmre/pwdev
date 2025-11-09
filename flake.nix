@@ -93,6 +93,7 @@
             pkg-config
             gcc
             pnpm
+            bun
             (yarn.override {nodejs = nodejs_24;})
             nodePackages.typescript
             nodePackages.typescript-language-server
