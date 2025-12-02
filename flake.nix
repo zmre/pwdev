@@ -2,7 +2,8 @@
   description = "pw quick dev environments"; # for when i'm too lazy to setup a custom flake.nix
   #nixConfig.bash-prompt = ''\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \[\033[00m\](\[\033[01;31m\]\[pwdev\]\[\033[00m\])\$ '';
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # Using stable means more things will have binaries already built
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     rust-overlay.url = "github:oxalica/rust-overlay";
     flake-utils.url = "github:numtide/flake-utils";
   };
@@ -27,6 +28,7 @@
           future
           ipykernel
           ipython
+          matplotlib
           nltk
           numpy
           openai
