@@ -26,6 +26,7 @@
           einops
           evaluate
           future
+          imageio
           ipykernel
           ipython
           matplotlib
