@@ -20,12 +20,12 @@
       pkgs = import nixpkgs {inherit system;};
       python312Env = pkgs.python312.withPackages (ps:
         with ps; [
-          accelerate
+          #accelerate
           datasets
           debugpy
           einops
           evaluate
-          future
+          #future
           imageio
           ipykernel
           ipython
@@ -44,7 +44,7 @@
           rouge-score
           sacrebleu
           scipy
-          sentence-transformers
+          #sentence-transformers
           setuptools
           sympy
           tenacity
