@@ -32,11 +32,12 @@
           openai
           optimum
           pandas
+          pillow
           pip
+          pkgs.mpi
           portalocker
           pyarrow
           python-dotenv
-          pytorch
           rouge-score
           sacrebleu
           scipy
@@ -46,7 +47,7 @@
           tenacity
           tokenizers
           torch
-          pkgs.mpi
+          torch
           transformers
         ]);
     in rec {
@@ -132,7 +133,7 @@
       };
       devShells.python = devShells.python312;
       devShells.all = pkgs.mkShell {
-        buildInputs = devShells.ts.buildInputs ++ devShells.rust.buildInputs ++ devShells.python.buildInputs;
+        buildInputs = devShells.ts.buildInputs ++ devShells.rust.buildInputs ++ devShells.python.buildInputs ++ [pkgs.jq];
         shellHook =
           devShells.ts.shellHook
           + devShells.rust.shellHook
