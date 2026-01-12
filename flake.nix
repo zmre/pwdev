@@ -28,8 +28,20 @@
   }:
     flake-utils.lib.eachDefaultSystem (system: let
       #overlays = [(import rust-overlay)];
-      #pkgs = import nixpkgs {inherit system overlays;};
-      pkgs = import nixpkgs {inherit system;};
+      # Workaround for setproctitle test failures on macOS (segfault in fork tests)
+      # See: https://github.com/celery/celery/issues/9894
+      overlays = [
+        (final: prev: {
+          python312 = prev.python312.override {
+            packageOverrides = pyFinal: pyPrev: {
+              setproctitle = pyPrev.setproctitle.overridePythonAttrs (old: {
+                doCheck = false;
+              });
+            };
+          };
+        })
+      ];
+      pkgs = import nixpkgs {inherit system overlays;};
       python312Env = pkgs.python312.withPackages (ps:
         with ps; [
           #accelerate
@@ -75,6 +87,7 @@
             cargo-watch
             cargo-bundle
             cargo-tauri
+            cargo-generate
             #rust-bin.stable.latest.default
             curl
             libiconv
