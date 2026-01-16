@@ -42,6 +42,15 @@
         })
       ];
       pkgs = import nixpkgs {inherit system overlays;};
+
+      common = with pkgs; [
+        just
+        jq
+        pkg-config
+        automake
+        gnumake
+        cmake
+      ];
       python312Env = pkgs.python312.withPackages (ps:
         with ps; [
           #accelerate
@@ -83,7 +92,6 @@
         buildInputs = with pkgs;
           [
             openssl
-            pkg-config
             cargo-watch
             cargo-bundle
             cargo-tauri
@@ -115,11 +123,9 @@
             autoconf
             mozjpeg
             libtool
-            automake
             nasm
             libpng
             optipng
-            pkg-config
             gcc
             pnpm
             bun
@@ -129,9 +135,11 @@
             nodePackages.diagnostic-languageserver
             nodePackages.eslint_d
           ]
-          ++ pkgs.lib.optionals pkgs.stdenv.isDarwin (with pkgs; [
-            darwin.cctools
-          ]);
+          ++ pkgs.lib.optionals pkgs.stdenv.isDarwin (with pkgs;
+            [
+              darwin.cctools
+            ]
+            ++ common);
         shellHook = ''
           echo "You're using the TypeScript on Node 24 default environment"
           export PS1="\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \[\033[00m\](\[\033[01;31m\]\[pwdev-ts\]\[\033[00m\])\$ "
@@ -141,10 +149,12 @@
       devShells.ts = devShells.ts24;
 
       devShells.python312 = pkgs.mkShell {
-        buildInputs = with pkgs; [
-          libffi
-          python312Env
-        ];
+        buildInputs = with pkgs;
+          [
+            libffi
+            python312Env
+          ]
+          ++ common;
 
         shellHook = ''
           export PIP_PREFIX=$(pwd)/_build/pip_packages #Dir where built packages are stored
@@ -161,7 +171,7 @@
       };
       devShells.python = devShells.python312;
       devShells.all = pkgs.mkShell {
-        buildInputs = devShells.ts.buildInputs ++ devShells.rust.buildInputs ++ devShells.python.buildInputs ++ [pkgs.jq];
+        buildInputs = devShells.ts.buildInputs ++ devShells.rust.buildInputs ++ devShells.python.buildInputs ++ common;
         shellHook =
           devShells.ts.shellHook
           + devShells.rust.shellHook
