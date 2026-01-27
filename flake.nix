@@ -97,6 +97,7 @@
             cargo-bundle
             cargo-tauri
             cargo-generate
+            cargo-audit
             #rust-bin.stable.latest.default
             curl
             libiconv
