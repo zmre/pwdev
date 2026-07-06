@@ -117,6 +117,32 @@
           export PS1="\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \[\033[00m\](\[\033[01;31m\]\[pwdev-rust\]\[\033[00m\])\$ "
         '';
       };
+      # nix develop .#go
+      devShells.go = pkgs.mkShell {
+        buildInputs = with pkgs;
+          [
+            go # compiler, go fmt, go test, go vet, etc.
+            gopls # official LSP
+            gotools # goimports, gorename, stringer, etc.
+            go-tools # staticcheck
+            gofumpt # stricter gofmt
+            golangci-lint # meta-linter most projects use
+            delve # debugger (dlv)
+            govulncheck # vulnerability scanner
+            gomodifytags # struct tag editing
+            gotests # table-driven test generation
+            impl # interface stub generation
+            go-mockery # mock generation
+            errcheck
+          ]
+          ++ common;
+        # Keep delve happy: fortify hardening breaks debug builds
+        hardeningDisable = ["fortify"];
+        shellHook = ''
+          echo "You're using the Go default environment"
+          export PS1="\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \[\033[00m\](\[\033[01;31m\]\[pwdev-go\]\[\033[00m\])\$ "
+        '';
+      };
       # nix develop .#ts24
       devShells.ts24 = pkgs.mkShell {
         buildInputs = with pkgs;
@@ -173,11 +199,12 @@
       };
       devShells.python = devShells.python312;
       devShells.all = pkgs.mkShell {
-        buildInputs = devShells.ts.buildInputs ++ devShells.rust.buildInputs ++ devShells.python.buildInputs ++ common;
+        buildInputs = devShells.ts.buildInputs ++ devShells.rust.buildInputs ++ devShells.python.buildInputs ++ devShells.go.buildInputs ++ common;
         shellHook =
           devShells.ts.shellHook
           + devShells.rust.shellHook
           + devShells.python.shellHook
+          + devShells.go.shellHook
           + ''
             export PS1="\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \[\033[00m\](\[\033[01;31m\]\[pwdev-all\]\[\033[00m\])\$ "
           '';
